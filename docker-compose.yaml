@@ -1,0 +1,33 @@
+services:
+    minio:
+        image: minio/minio
+        container_name: minio_local
+        command: server --console-address ":9001"
+        ports:
+            - "9000:9000"
+            - "9001:9001"
+        network_mode: "host"
+        environment:
+            # ? Environment file
+            - MINIO_CONFIG_ENV_FILE=/etc/config.env
+
+            # ? Config to enable login using Keycloak
+            - MINIO_IDENTITY_OPENID_CONFIG_URL_KEYCLOAK_PRIMARY=http://172.17.0.1:9080/realms/myrealm/.well-known/openid-configuration
+            - MINIO_IDENTITY_OPENID_CLIENT_ID_KEYCLOAK_PRIMARY=minio
+            - MINIO_IDENTITY_OPENID_CLIENT_SECRET_KEYCLOAK_PRIMARY=fhmBg6OoV6Z5OsfcOlbyotiCcK55jscz
+            - MINIO_IDENTITY_OPENID_DISPLAY_NAME_KEYCLOAK_PRIMARY=Login with Keycloak
+            - MINIO_IDENTITY_OPENID_SCOPES_KEYCLOAK_PRIMARY=openid
+            - MINIO_IDENTITY_OPENID_REDIRECT_URI_DYNAMIC_KEYCLOAK_PRIMARY=on
+
+            # ? To set up a middleware
+            # - MINIO_IDENTITY_PLUGIN_URL=http://localhost:5000/
+            # - MINIO_IDENTITY_PLUGIN_ROLE_POLICY=consoleAdmin
+
+            # All other envvars are optional
+            # - MINIO_IDENTITY_PLUGIN_TOKEN=Bearer TOKEN
+            # - MINIO_IDENTITY_PLUGIN_ROLE_ID=external-auth-provider
+            # - MINIO_IDENTITY_PLUGIN_COMMENT=External Identity Management using PROVIDER
+        volumes:
+            - /home/amarthya/IUDX/minio/data:/mnt/data
+            - /home/amarthya/IUDX/minio/.env:/etc/config.env
+        restart: unless-stopped
